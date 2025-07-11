@@ -50,32 +50,28 @@ Between w\_2024\_42 (the source for pipelines version 28) and w\_2025\_09 (v29 s
 
 Photometry and astrometry metrics reported here were calculated using the \href{https://github.com/lsst/analysis_tools}{analysis\_tools} package, which is part of the standard pipeline distribution. The \texttt{analysis\_tools} package builds on and supersedes \href{https://github.com/lsst/faro}{faro} (\citeds{DMTN-211}), which has been used for the past few years. The calculation of most metrics reported in this Report is unchanged between the two packages, though minor differences in how selection criteria are applied, or how catalog matching is done, between \texttt{analysis\_tools} and \texttt{faro} could result in small differences in the resulting metrics. We are actively working on a revised definition of the residual ellipticity correlation metrics TE1 and TE2, to be implemented in \texttt{analysis\_tools}. Because this work is still in progress, the ellipticity metrics are not reported here.
 
-The metric calculation pipelines from \texttt{analysis\_tools} were run on the three RC2 tracts to derive the photometry and astrometry metrics
-% , and \texttt{faro} to calculate the shape metrics
-that are reported here. We exclude the two astrometry metrics (AM3 and AF3) that concern residuals on 200-arcminute scales, since the individual tracts of RC2 do not span large enough spatial scales to enable these measurements.
+The metric calculation pipelines from \texttt{analysis\_tools} were run on the three RC2 tracts to derive the photometry and astrometry metrics that are reported here. We exclude the two astrometry metrics (AM3 and AF3) that concern residuals on 200-arcminute scales, since the individual tracts of RC2 do not span large enough spatial scales to enable these measurements.
 
 For comparison, we provide the \SRD required ``design'' value of each Key Performance Metric (KPM) as defined in the Science Requirements Document \citedsp{LPM-17}. For the ellipticity correlation metrics, there are specifications only for \emph{r} and \emph{i} bands. The \emph{ugzy}-band measurements are of interest primarily for historical tracking.
 
 Some KPMs (e.g., PF1, AF1, AF2) involve thresholds that are different for ``design'', ``minimum'', and ``stretch'' specifications. Metrics in this report are all compared to the ``design'' thresholds. The assessment of these KPMs would be different if evaluated against different thresholds.
 
-\textbf{DP1 LSSTComCam On-sky Data:} Version~29 of the Science Pipelines was used for processing of the Data Preview 1 (DP1) data, which derived from on-sky commissioning conducted with LSSTComCam, the commissioning camera (\citeds{RTN-095}, \citeds{SITCOMTN-149}). Here we report the photometry and astrometry metrics as measured on tract 5063, one of the tracts that overlaps the ECDFS field of view in DP1. The metrics are presented in the tables and figures of this report for comparison to the same metrics measured on HSC-RC2 data. However, these should not be directly compared, as the LSSTComCam data were commissioning data taken with a newly-installed camera before the system had been optimized. Thus these v29 metrics based on LSSTComCam DP1 data should be taken as a starting point for future comparisons with on-sky LSST data, which are likely to significantly improve upon the performance shown here.
+\textbf{DP1 LSSTComCam On-sky Data:} Version~29 of the Science Pipelines was used for processing of the Data Preview 1 (DP1) data (\citeds{RTN-095}), which derived from on-sky commissioning conducted with LSSTComCam, the commissioning camera (\citeds{SITCOMTN-149}). Here we report the photometry and astrometry metrics as measured on tract 5063, one of the tracts that overlaps the ECDFS field of view in DP1. The metrics are presented in the tables and figures of this report for comparison to the same metrics measured on HSC-RC2 data. However, these should not be directly compared, as the LSSTComCam data were commissioning data taken with a newly-installed camera before the system had been optimized. Thus these v29 metrics based on LSSTComCam DP1 data should be taken as a starting point for future comparisons with on-sky LSST data, which are likely to significantly improve upon the performance shown here.
 
 \begin{figure}[!t]
   \centering
   \includegraphics[width=0.6\textwidth, trim=0.0in 0.0in 0.0in 0.0in, clip]{figures/photom_metrics_v29_with_thresholds.png}
-  \caption{Photometry metrics PA1 (photometric repeatability) and PF1 (percentage of measurements exceeding the outlier threshold) measured in the $r$-band. The figure shows the values of these metrics as measured with \texttt{faro} in versions 22-26 of the LSST Science Pipelines as circles, compared against the SRD requirements (for both the ``design'' and ``minimum'' thresholds). The measurements from \texttt{analysis\_tools} in versions 26-29 of the Science Pipelines are shown as squares. The measured values of both metrics show minor improvements between the two most recent releases (v28 8and v29); this is likely due to the refactoring of calibration tasks. The algorithm to calculate PA1 is unchanged between \texttt{faro} and \texttt{analysis\_tools} (though because of differences in software architecture, it is expected that we would see minor differences in their outputs), and the metric differs by only a small offset between the two versions calculated in v26. However, while porting the PF1 metric to \texttt{analysis\_tools}, we discovered an error in the method of calculation (see the text for details). Fixing this error reduced the value of PF1 significantly.}
+  \caption{Photometry metrics PA1 (photometric repeatability) and PF1 (percentage of measurements exceeding the outlier threshold) measured in the $r$-band. The figure shows the values of these metrics as measured with \texttt{analysis\_tools} in versions 26-29 of the LSST Science Pipelines as squares, compared against the SRD requirements (for both the ``design'' and ``minimum'' thresholds). The measured values of both metrics show minor improvements between the two most recent releases (v28 8and v29); this is likely due to the refactoring of calibration tasks. Measurements of PA1 and PF1 on LSSTComCam data in tract 5063 from DP1 are shown as diamonds, demonstrating that even at the early stage of commissioning when these data were obtained, the data quality meets the design requirement for PF1 (outlier fraction), and is well beneath the minimum threshold (and near the design specification) for PA1 (repeatability).}
   \label{fig:phot_metrics}
 \end{figure}
 
 \section{Summary of performance metrics}
 
-As noted previously, we now report metrics calculated by the \texttt{analysis\_tools} package, which improves upon the \texttt{faro} tools we had been previously using for calculation of data quality metrics. The plots in this Report include metrics from both \texttt{analysis\_tools} and \texttt{faro} for historical continuity, but future data processing campaigns will not run the \texttt{faro} tasks. One significant change is evident when comparing the outputs of the two frameworks on the v26 dataset: in Figure~\ref{fig:phot_metrics}, PF1 is much smaller as measured by \texttt{analysis\_tools} than from \texttt{faro}. This is expected, as we discovered an error in the calculation that was fixed when porting the PF1 metric from \texttt{faro} to \texttt{analysis\_tools} (see \href{https://rubinobs.atlassian.net/browse/DM-39332}{Jira ticket DM-39332} for details). The previous version had been calculating the outlier fraction relative to a fixed value of 15 mmag, while the metric is intended to be the fraction of outliers \textit{more than 15 mmag from the median} photometric repeatability. The changes on DM-39332 have brought the PF1 metric's calculation in line with the description in the DMSR, resulting in a value that is well beneath the design threshold for PF1.
-
 In spite of the extensive refactoring of the calibration process between versions 28 and 29 of the pipelines, the data quality metrics are only slightly different between the two versions. Both the photometry metrics (Section~\ref{photometric-performance}) and the astrometry metrics (Section~\ref{astrometric-performance}) show slight improvements.
 % The ellipticity correlation metrics (Section~\ref{ellipticity-correlations}) show only a small difference between Release 27 and 28 for TE1 (median ellipticity residual correlations at 1 arcminute scales) and TE2 (5-arcminute scales).
 
 \section{Photometric Performance}\label{photometric-performance}
-% NOTE: In v28, add the calib flux repeatability!
+% NOTE: Starting v28, add the calib flux repeatability!
 
 These photometric performance metrics are defined in LSS-REQ-0093 (\citeds{LSE-29}) and Table 14 of \citeds{LPM-17}. Values in this table represent the mean of the results reported by \texttt{analysis\_tools} for the three tracts in RC2. An additional column has been added in this version to report the results measured from tract 5063 of DP1 LSSTComCam on-sky data.
 
@@ -277,21 +273,582 @@ PF1: \emph{y}\strut
 
 \section{Astrometric Performance}\label{astrometric-performance}
 
+
 \begin{figure}[!t]
   \centering
   \includegraphics[width=0.475\textwidth, trim=0.0in 0.0in 0.0in 0.0in, clip]{figures/astrom_metrics_v29_with_thresholds.png}
   \includegraphics[width=0.475\textwidth, trim=0.0in 0.0in 0.0in 0.0in, clip]{figures/astrom_outlier_metrics_v29_with_thresholds.png}
-  \caption{Astrometry metrics measured on $r$-band images compared over the past few major pipelines releases. The figure shows the values of these metrics as measured with \texttt{faro} in versions 22-26 of the LSST Science Pipelines as circles. The measurements from \texttt{analysis\_tools} in versions 26-29 of the Science Pipelines are shown as squares. \textit{Left: } Median astrometric measurement error on 5-arcminute scales (AM1) and 20-arcminute scales (AM2), compared against the SRD requirements (for the ``design'' thresholds; note that the thresholds for AM1 and AM2 are the same, and thus indistinguishable on the figure). \textit{Right: } Fraction of astrometric measurements exceeding the outlier threshold on 5-arcminute (AF1) and 20-arcminute (AF2) scales, compared against the SRD requirements (for the ``design'' thresholds; note that the thresholds for AF1 and AF2 are the same, and thus indistinguishable on the figure). The measured values of the astrometric scatter metrics AM1 and AM2 and the outlier fractions AF1 and AF2 all show slight improvements between pipelines versions 28 and v29. }
+  \caption{Astrometry metrics measured on $r$-band images compared over the past few major pipelines releases. The figure shows the values of these metrics as measured with \texttt{analysis\_tools} in versions 26-29 of the Science Pipelines as squares. \textit{Left: } Median astrometric measurement error on 5-arcminute scales (AM1) and 20-arcminute scales (AM2), compared against the SRD requirements (for the ``design'' and ``minimum'' thresholds; note that the thresholds for AM1 and AM2 are the same, and thus indistinguishable on the figure). \textit{Right: } Fraction of astrometric measurements exceeding the outlier threshold on 5-arcminute (AF1) and 20-arcminute (AF2) scales, compared against the SRD requirements (for the ``design'' and ``minimum'' thresholds; note that the thresholds for AF1 and AF2 are the same, and thus indistinguishable on the figure). The measured values of the astrometric scatter metrics AM1 and AM2 and the outlier fractions AF1 and AF2 all show slight improvements between pipelines versions 28 and v29. Measurements of these metrics on LSSTComCam data in tract 5063 from DP1 are shown as diamonds, demonstrating that even at the early stage of commissioning when these data were obtained, the data quality nearly meets the design requirements for AM1, AM2, AF1, and AF2, and is well beneath the minimum thresholds (and near the design specification) for all of them. }
   \label{fig:astrom_metrics}
 \end{figure}
 
 The following metrics are defined following LSR-REQ-0094
 \citedsp{LSE-29} and Table 18 of \citeds{LPM-17}. Values in this table represent the mean of the results reported by \texttt{analysis\_tools} for the three tracts in RC2. An additional column has been added in this version to report the results measured from tract 5063 of DP1 LSSTComCam on-sky data.
 
-
 Any entries left blank are those for which we do not have data in the given filter for that dataset.
 
-\input{v29_astrom_table.tex}
+\begin{longtable}[]{@{}lllllll@{}}
+  \toprule
+  \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+  Metric\strut
+  \end{minipage} & \begin{minipage}[b]{0.06\columnwidth}\raggedright\strut
+  Unit\strut
+  \end{minipage} & \begin{minipage}[b]{0.14\columnwidth}\raggedright\strut
+  SRD Requirement -- Design\strut
+  \end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+  Release 28 Value (RC2) \strut
+  \end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+  Release 29 Value (RC2) \strut
+  \end{minipage} & \begin{minipage}[b]{0.12\columnwidth}\raggedright\strut
+  Release dp1\_v29 Value (LSSTComCam) \strut
+  \end{minipage} & \begin{minipage}[b]{0.17\columnwidth}\raggedright\strut
+  Comments\strut
+  \end{minipage}\tabularnewline
+  \midrule
+  \endhead
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AM1: \emph{u}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  - \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  - \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  18.1 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AM1: \emph{g}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  5.2 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  5.0 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  15.4 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AM1: \emph{r}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  4.6 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  4.5 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  12.7 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AM1: \emph{i}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  4.1 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  3.9 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  11.4 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AM1: \emph{z}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  5.1 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  5.0 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  11.4 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AM1: \emph{y}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  6.9 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  6.8 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  12.4 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AF1: \emph{u}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  \%\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  - \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  - \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  24.7 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AF1: \emph{g}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  \%\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.9 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.8 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  24.1 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AF1: \emph{r}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  \%\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.9 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.8 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  11.9 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AF1: \emph{i}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  \%\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.6 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.6 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  8.7 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AF1: \emph{z}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  \%\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.6 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.6 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  9.6 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AF1: \emph{y}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  \%\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  2.9 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  2.8 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  12.0 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AD1: \emph{u}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 20.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  - \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  - \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  30.4 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AD1: \emph{g}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 20.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  9.7 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  9.6 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  30.8 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AD1: \emph{r}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 20.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  9.2 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  9.0 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  21.3 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AD1: \emph{i}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 20.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  7.9 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  7.7 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  19.1 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AD1: \emph{z}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 20.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  9.6 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  9.6 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  19.7 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AD1: \emph{y}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 20.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  12.6 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  12.5 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  21.4 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AM2: \emph{u}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  - \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  - \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  17.0 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AM2: \emph{g}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  5.3 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  5.2 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  15.4 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AM2: \emph{r}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  4.6 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  4.5 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  12.2 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AM2: \emph{i}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  4.0 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  3.9 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  11.0 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AM2: \emph{z}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  5.2 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  5.1 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  10.8 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AM2: \emph{y}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  7.1 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  6.9 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  11.6 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AF2: \emph{u}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  \%\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  - \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  - \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  24.1 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AF2: \emph{g}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  \%\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.9 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.9 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  24.7 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AF2: \emph{r}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  \%\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.8 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.8 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  11.0 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AF2: \emph{i}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  \%\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.6 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.5 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  8.1 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AF2: \emph{z}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  \%\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.7 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  0.7 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  8.4 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AF2: \emph{y}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  \%\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 10.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  3.2 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  3.2 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  10.7 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AD2: \emph{u}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 20.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  - \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  - \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  30.0 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AD2: \emph{g}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 20.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  10.0 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  9.8 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  31.5 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AD2: \emph{r}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 20.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  9.3 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  9.2 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  20.7 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AD2: \emph{i}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 20.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  7.9 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  7.6 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  18.6 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AD2: \emph{z}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 20.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  9.9 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  9.8 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  18.8 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  AD2: \emph{y}\strut
+  \end{minipage} & \begin{minipage}[t]{0.06\columnwidth}\raggedright\strut
+  mas\strut
+  \end{minipage} & \begin{minipage}[t]{0.14\columnwidth}\raggedright\strut
+  \(\leq 20.0\)\strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  12.9 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  12.8 \strut
+  \end{minipage} & \begin{minipage}[t]{0.12\columnwidth}\raggedright\strut
+  20.4 \strut
+  \end{minipage} & \begin{minipage}[t]{0.17\columnwidth}\raggedright\strut
+
+  \end{minipage}\tabularnewline
+  \bottomrule
+  \end{longtable}
+
 
 \appendix
 
